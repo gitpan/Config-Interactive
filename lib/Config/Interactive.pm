@@ -1,6 +1,7 @@
 package Config::Interactive;
 use strict;
 use warnings;
+use 5.006_001;
 
 =head1 NAME
 
@@ -8,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
@@ -226,27 +227,25 @@ It will reuse the same validation pattern  for the same key
 use XML::Simple;
 use Carp;
 use Data::Dumper;
-
-our %hash = (
-    file      => undef,
-    debug     => undef,
-    delimiter => '=',
-    data      => undef,
-    dialog    => undef,
-    validkeys => undef,
-    prompts   => undef
-);
+use fields qw(file debug delimiter data dialog validkeys prompts);
+ 
 
 sub new {
     my ( $that, $param ) = @_;
     my $class = ref($that) || $that;
-    my $self = bless \%hash, $class;
-    if ( ref($param) ne 'HASH' ) {
-        croak( "ONLY hash ref accepted as param and not: " . $param );
+    my $self =  fields::new($class);
+    
+    if ($param) {
+        croak( "ONLY hash ref accepted as param and not: " . Dumper $param ) unless  ref($param) eq 'HASH' ;
+        $self->{debug} = $param->{debug} if  $param->{debug}; 
+	foreach my $key  (qw/file  delimiter data dialog validkeys prompts/) {
+            if($param->{$key}) {
+	        $self->{$key} = $param->{$key};   
+                print " Set parameter: \n" if  $self->{debug};
+	    }  
+	}
     }
-    no strict 'refs';
-    map { $self->{$_} = $param->{$_} if exists $hash{$_} } keys %{$param};   ###
-    use strict;
+    $self->{delimiter} = '=' unless $self->{delimiter};
     return $self;
 }
 
@@ -373,14 +372,18 @@ sub store {
             : $self->{data}->{$key}{value}
         );
 
-        print " This option  $key is : " . ref($value) if $self->{debug};
+        carp(" This option  $key is : " . Dumper $value) if $self->{debug};
+	 
         if ( ref($value) eq 'HASH' ) {
-            print OUTF $comment . XMLout( $value, RootName => $key ) . "\n";
-
+	    my $xml_out =  $self->{data}->{$key}{value};
+	    foreach my $arg (keys %{$self->{data}->{$key}{pre}}) {
+	        $xml_out->{$arg}  = $self->{data}->{$key}{pre}->{$arg};
+	    }
+            print OUTF $comment . XMLout( $xml_out , RootName => $key ) . "\n";
         }
         else {
             print OUTF $comment . $key . $self->{delimiter} . "$value\n";
-            print( $comment . $key . $self->{delimiter} . $value )
+            carp( $comment . $key . $self->{delimiter} . $value )
               if $self->{debug};
         }
     }
@@ -439,7 +442,7 @@ sub parse {
                     my $xml_cf =
                       XMLin( $xml_config, KeyAttr => {}, ForceArray => 1 );
                     $config{$xml_start}{value} = $self->_parseXML($xml_cf);
-                    print " Parsed XML fragment: "
+                    carp " Parsed XML fragment: "
                       . Dumper $config{$xml_start}{value}
                       if $self->{debug};
                     if ($comment) {
@@ -510,7 +513,7 @@ sub _interpolate {
                       ? $config->{$key}{pre}
                       : $config->{$key}{value};
                     $config->{$key}{value} =~ s/\$\{?$sub_key\}?/$subst/xsmg;
-                    print(  " interpolated "
+                    carp(  " interpolated "
                           . $config->{$key}{value}
                           . " -> $sub_key -> $subst \n" )
                       if $self->{debug};
@@ -549,7 +552,7 @@ sub _interpolate {
                         $config->{value}{$key} =~
                           s/\$\{?$sub_key\}?/$subst/xsmg;
                     }
-                    print(  " interpolated "
+                    carp(  " interpolated "
                           . $xml_value
                           . " -> $sub_key -> $subst \n" )
                       if $self->{debug};

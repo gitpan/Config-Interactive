@@ -1,5 +1,3 @@
-#!perl  
-
 use Test::More tests => 12;
  
 use_ok('Config::Interactive');
@@ -14,9 +12,9 @@ my %CONF_KEYS = (PORT => ' enter any number  and press Enter ');
   my $conf =  undef;
  # 2 
   eval {
-     $conf = new Config::Interactive({file  => $cfg }) 
+     $conf = new Config::Interactive({  file  => $cfg }) 
   };
-  ok( $conf , "Config::Interactive create object");
+  ok(  !$@ && $conf , "Config::Interactive create object");
   $@ = undef;
 
  # 3 
@@ -52,19 +50,16 @@ my %CONF_KEYS = (PORT => ' enter any number  and press Enter ');
 
 # 10
   eval {  
-    $conf->store("/tmp/test.conf");
-     
+    $conf->store("/tmp/test.conf")   
   };
-  ok(!$@, "Config::Interactive store file ". $@);  
+  ok( !$@  && -e "/tmp/test.conf", "Config::Interactive store file ". $@);  
   $@ = undef;
- 
- 
   # 11
   eval {    
-   $conf = new Config::Interactive({file => $cfg,  dialog => undef ,  validkeys => \%CONF_VALID, prompts => \%CONF_KEYS}); 
+   $conf = new Config::Interactive({file => $cfg,   dialog => undef,  validkeys => \%CONF_VALID, prompts => \%CONF_KEYS}); 
    };
-    ok(!$@ && $conf , "Config::Interactive create object with patterns and prompts");
-   $@ = undef;
+   ok(!$@ && $conf , "Config::Interactive create object with patterns and prompts " . $@);
+   
  # 12
     
   ok( $conf->parse , "Config::Interactive parse with prompts file   " );
