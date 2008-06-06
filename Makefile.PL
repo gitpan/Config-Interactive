@@ -1,15 +1,19 @@
-use strict;
-use warnings;
-use ExtUtils::MakeMaker;
+use inc::Module::Install;
 
-WriteMakefile(
-    NAME                => 'Config::Interactive',
-    AUTHOR              => 'Maxim Grigoriev <maximgrp@fnal.gov>',
-    VERSION_FROM        => 'lib/Config/Interactive.pm',
-    PL_FILES            => {},
-    PREREQ_PM => {
-        'Test::More' => 0, 'fields' => 0, 'Data::Dumper' => 0, 'XML::Simple' => 0, 'Carp' => 0
-    },
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Config/Interactive-*' },
-);
+name             'Config-Interactive';
+author_from      'lib/Config/Interactive.pm';
+license          'Fermitools';
+version          '0.03';
+perl_version     '5.0061';
+all_from 	 'lib/';
+
+ 
+requires 'Test::More' => 0; 
+requires 'fields' => 0; 
+requires 'Data::Dumper' => 0;
+requires 'XML::Simple' => 0;
+
+no_index directory  => 't';
+
+auto_install;
+WriteAll;

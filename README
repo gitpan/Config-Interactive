@@ -4,20 +4,20 @@ Config::Interactive
 
 VERSION
 
- 0.02
+ 0.03
  
  
 DECRIPTION
 
- Provides a convenient way for loading   config values from a given file and
-  returns it as a hash structure, allows interpolation for the   perl scalars ( $xxxx ${xxx} )
-  and inside of XML fragments as well.
-  Also, it can run interactive session with user, use predefined prompts, use validation patterns
-  and store back into the file, preserving the original order of the comments and definitions.
-    Motivation behind this module was inspired by Config::General module which was missing required
-  functionality ( preservation of the comments order and positioining, prompts and validation for 
-  command line based UI ). Basically, this is Yet-Another-Config-Module with some subset of the
-  functionality and list of features found to be useful. 
+Provides a convenient way for loading   config values from a given file and
+returns it as a hash structure, allows interpolation for the   perl scalars ( $xxxx ${xxx} )
+and inside of XML fragments as well.
+Also, it can run interactive session with user, use predefined prompts, use validation patterns
+and store back into the file, preserving the original order of the comments and definitions.
+Motivation behind this module was inspired by Config::General module which was missing required
+functionality ( preservation of the comments order and positioining, prompts and validation for 
+command line based UI ). Basically, this is Yet-Another-Config-Module with some subset of the
+functionality and list of features found to be useful. 
   
 
 

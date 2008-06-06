@@ -1,5 +1,8 @@
 Revision history for Config::Interactive
 
+0.03    6/6/2008 
+        Cleand whitespace noise in the pods
+	
 0.02    3/6/2008 
         Fixed bug with storing only part of interpolated XML fragment
 	Added 'use fields' and made constructor safer

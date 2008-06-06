@@ -5,98 +5,97 @@ use 5.006_001;
 
 =head1 NAME
 
- Config::Interactive -    config module with support for interpolation, XML fragments and interactive UI
+Config::Interactive -  config module with support for interpolation, XML fragments and interactive UI
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
-This module opens a config file and parses it's contents for you. The  'new' method
+This module opens a config file and parses it's contents for you. The  I<new()> method
 accepts several parameters. The method  'parse'  returns a hash reference
 which contains all options and it's associated values of your config file as well as comments above.
 If the dialog mode is set then at the moment of parsing user will be prompted to enter different value and
 if validation pattern for this particular key was defined then it will be validated and user could be asked to
 enter different value if it failed.
-
-The format of config files supported by Config::Interactive is   
-<name>=<value> pairs or XML fragments ( by XML::Simple,  namespaces are not supported) and comments are any line which starts with #.
+The format of config files supported by L<Config::Interactive> is   
+C<< <name>=<value> >> pairs or XML fragments (by L<XML::Simple>,  namespaces are not supported) and comments are any line which starts with #.
 Comments inside of XML fragments will pop-up on top of the related fragment. It will interpolate any perl variable 
-which looks as ${?[A-Za-z]\w+}?.
-
+which looks as C< ${?[A-Za-z]\w+}? >.
 Please not that interpolation works for XML fragments as well, BUT interpolated varialbles MUST be defined
-by key=value definition and NOT inside of other XML fragment!
-
-The order of appearance of such variables in the config file is not important, means you can use $bar variable anywhere in the config file but
-set it to something on the last line ( or even skip setting it at all , then it will be undef).
-
+by C<key=value> definition and NOT inside of other XML fragment!
+The order of appearance of such variables in the config file is not important, means you can use C<$bar> variable anywhere in the config file but
+set it to something on the last line (or even skip setting it at all , then it will be undef).
 It stores internally config file contents as hash ref where data structure is:
 Please note that array ref is used to store XML text elements and scalar for attributes.
 
-( 'key1' => {'comment' => "#some comment\n#more comments\n", 
-                                                       'value' => 'Value1',
-						       'order' => '1',
-						      },
-  'key2' => {'comment' => "#some comment\n#more comments\n", 
-            'value' =>  'Value2',
-	    'order' => '2'
-	   },
-  'XMLRootKey' =>  {'comment' => "#some comment\n#more comments\n",
-	       'order' => '3',
-	       'value' =>  { 
-				 'xmlAttribute1' => 'attribute_value',
-				 'subXmlKey1' =>  ['sub_xml_value1'],
-				 'subXmlKey2' =>   ['sub_xml_value2'],
-				 'subXmlKey3'=>   ['sub_xml_value3'],     
-			    }		
-	    }
- ) 
- 
- The normalized ( flat hash with only key=value pairs ) view of the config could be obtained by getNormalizedData() call.
- 
- All tree- like options will be flatted as key1_subkey1_subsubkey1. So the structure above will be converted into:
- ('key1' => 'Value1', 
- 'key2' =>   'Value2', 
- 'XMLRootKey_xmlAttribute1' => 'attribute_value',
- 'XMLRootKey_subXmlKey1' =>  'sub_xml_value1' ,
- 'XMLRootKey_subXmlKey2' =>   'sub_xml_value2',
- 'XMLRootKey_subXmlKey3'=>    'sub_xml_value3' , )    
- 
+   
+   ( 'key1' => {'comment' => "#some comment\n#more comments\n", 
+                'value' => 'Value1',
+                'order' => '1',
+              },
+   'key2' => {'comment' => "#some comment\n#more comments\n", 
+              'value' =>  'Value2',
+              'order' => '2'
+             },
+    
+   'XMLRootKey' =>  {'comment' => "#some comment\n#more comments\n",
+                     'order' => '3',
+                     'value' =>  { 
+                                   'xmlAttribute1' => 'attribute_value',
+                                   'subXmlKey1' =>    ['sub_xml_value1'],
+                                   'subXmlKey2' =>    ['sub_xml_value2'],
+                                   'subXmlKey3'=>     ['sub_xml_value3'],	
+                   }	      
+     }
+   ) 
+  
+
+The normalized ( flat hash with only key=value pairs ) view of the config could be obtained by getNormalizedData() call.
+All tree- like options will be flatted as key1_subkey1_subsubkey1. So the structure above will be converted into:
+
+  ('key1' => 'Value1', 
+   'key2' =>   'Value2', 
+   'XMLRootKey_xmlAttribute1' => 'attribute_value',
+   'XMLRootKey_subXmlKey1' =>  'sub_xml_value1' ,
+   'XMLRootKey_subXmlKey2' =>   'sub_xml_value2',
+   'XMLRootKey_subXmlKey3'=>    'sub_xml_value3' , )    
+
 the case of the key will be preserved.			
 
 =head1 SYNOPSIS
 
-  Provides a convenient way for loading   config values from a given file and
-  returns it as a hash structure, allows interpolation for the simple perl scalars ( $xxxx ${xxx} )
-  Also, it can run interactive session with user, use predefined prompts, use validation patterns
-  and store back into the file, preserving the order of original comments.
-  Motivation behind this module was inspired by Config::General module which was missing required
-  functionality ( preservation of the comments order and positioining, prompts and validation for 
-  command line based UI ). Basically, this is Yet-Another-Config-Module with some subset of the
-  functionality and list of features found to be useful.
- 
-     use Config::Interactive;
+Provides a convenient way for loading	config values from a given file and
+returns it as a hash structure, allows interpolation for the simple perl scalars C<( $xxxx ${xxx} )>
+Also, it can run interactive session with user, use predefined prompts, use validation patterns
+and store back into the file, preserving the order of original comments.
+Motivation behind this module was inspired by L<Config::General> module which was missing required
+functionality (preservation of the comments order and positioining, prompts and validation for 
+command line based UI ). Basically, this is I<Yet-Another-Config-Module> with list of features found to be useful.
 
+     use Config::Interactive;
+     
      # define prompts for the keys
-     my %CONF_prompts = (   'username' =>    ' your favorite username ',
-			   'password'=>   '  most secure password ever ', 
-		        );
-     my %validkeys = (   'username' =>    ' your favorite username ',
-			   'password'=>   '  most secure password ever ', 
-		        );
+     my %CONF_prompts = ('username' =>  'your favorite username ',
+                         'password'=>   'most secure password ever ', 
+                         );
+     
+     my %validkeys = ('username' =>    ' your favorite username ',
+                      'password'=>   '  most secure password ever ', 
+                     );
      
      # Read in configuration information from some.config file 
- 
      
-     my $conf  =  Config::Interactive->new( { file => 'some.conf', 
-                                       prompts => \%CONF_prompts, 
-				       validkeys => \%validkeys,
-				       dialog => '1'}); 
+     
+     my $conf = Config::Interactive->new({file => 'some.conf', 
+                                          prompts => \%CONF_prompts, 
+                                          validkeys => \%validkeys,
+                                          dialog => '1'}); 
      # OR
      # set interactive mode
        $conf->setDialog(1);
@@ -110,46 +109,48 @@ the case of the key will be preserved.
      #   use validation patterns from this hashref
      $conf->setValidkeys(\%validkeys ); 			   
      #   parse it, interpolate variables and ask user abour username and password, validate entered values
-   
+      
      $conf->parse();
     
      # store config file back, preserving original order and comments  
      $conf->store; 			 
 
- 
+
 =head1 METHODS
 
- 
- 
+
 =head2 new({})
 
-   creates new object, accepts hash ref as parameters 
-    
+creates new object, accepts hash ref as parameters 
+
 Possible ways to call B<new()>:
- 
- $conf = new Config::Interactive(); 
- 
- $conf = new Config::Interactive({file => "my.conf"}); # create object and will parse/store it within the my.conf file
 
- 
- $conf = new Config::Interactive({ file => "my.conf", data => $hashref });  # use current hash ref with options
- 
- $conf = new Config::Interactive({ file => "my.conf", dialog => 'yes', prompts => \%promts_hash }); # prompt user to enter new value for every -key- which held inside of  %prompts_hash
- $conf = new Config::Interactive({ file => "my.conf", dialog => 'yes', delimiter => '?',
-                          prompts => \%promts_hash, validkeys => \%validation_patterns }); # set delimiter as '?'... and validate every new value against the validation pattern
- 
+  $conf = new Config::Interactive(); 
+  
+  # create object and will parse/store it within the my.conf file
+  $conf = new Config::Interactive({file => "my.conf"}); 
+  
+  # use current hash ref with options
+  $conf = new Config::Interactive({ file => "my.conf", data => $hashref });  
+  
+  # prompt user to enter new value for every -key- which held inside of  %prompts_hash  
+  $conf = new Config::Interactive({ file => "my.conf", dialog => 'yes', prompts => \%promts_hash }); 
+   
+  # set delimiter as '?'... and validate every new value against the validation pattern
+  $conf = new Config::Interactive({ file => "my.conf", dialog => 'yes', delimiter => '?',
+                          prompts => \%promts_hash, validkeys => \%validation_patterns }); 
 
-This method returns a B<Config::Interactive> object (a hash blessed into "Config::Interactive" namespace.
+This method returns a B<Config::Interactive> object (a hash blessed into C<Config::Interactive> namespace.
 All further methods must be used from that returned object. see below.
-Please note that setting dialog option into the "true" is not enough, because the method will look only for the keys defined in the %prompts_hash 
-An alternative way to call B<new()> is supplying an option -hash with  hash reference to the set of  the options.
+Please note that setting dialog option into the "true" is not enough, because the method 
+will look only for the keys defined in the C<%prompts_hash> 
+An alternative way to call B<new({})> is supplying an option C<-hash> with  hash reference to the set of  the options.
 
 =over
 
 =item B<debug>
 
-  prints a lot of internal stuff if set to something defined
- 
+ prints a lot of internal stuff if set to something defined
 
 =item B<file>
 
@@ -157,68 +158,76 @@ An alternative way to call B<new()> is supplying an option -hash with  hash refe
 
  file => "my.conf"
 
- 
+
 =item B<data>
 
-A hash reference, which will be used as the config, i.e.:
+  A hash reference, which will be used as the config, i.e.:
 
- data => \%somehash,  
+  data => \%somehash,  
 
-where %somehash should be formatted as     ( 'key1' => {'comment' => "#some comment\n#more comments\n", 
-                                                       'value' => 'Value1',
-						       'order' => '1',
-						      },
-					    'key2' => {'comment' => "#some comment\n#more comments\n", 
-                                                      'value' =>  'Value2',
-						      'order' => '2'
-						     },
-					    'XML_root_key' =>  {'comment' => "#some comment\n#more comments\n",
-					                 'order' => '3',
-							 'value' =>  { 
-							                   'xml_attribute_1' => 'attribute_value',
-							                   'sub_xml_key1' =>  ['sub_xml_value1'],
-							                   'sub_xml_key2' =>   ['sub_xml_value2'],
-								           'sub_xml_key3'=>   ['sub_xml_value3'],     
-								      }	
-							 	      	
-						      }
-					   ) 
+where %somehash should be formatted as:
+
+     ( 'key1' => {'comment' => "#some comment\n#more comments\n", 
+                  'value' => 'Value1',
+                  'order' => '1',
+                 },
+                        
+       'key2' => {'comment' => "#some comment\n#more comments\n", 
+                  'value' =>  'Value2',
+                  'order' => '2'
+                 },
+      
+       'XML_root_key' =>  {'comment' => "#some comment\n#more comments\n",
+                           'order' => '3',
+                           'value' =>  { 
+                                        'xml_attribute_1' => 'attribute_value',
+                                        'sub_xml_key1' =>    ['sub_xml_value1'],
+                                        'sub_xml_key2' =>    ['sub_xml_value2'],
+                                        'sub_xml_key3'=>     ['sub_xml_value3'],	  
+                                       } 
+                                   
+                         }
+    )
 
 =item B<dialog>
 
-Set up an interactive mode, Please note that setting dialog option into the "true" is not enough,
-because this method will look only for the keys defined in the %prompts_hash ,  
+Set up an interactive mode, Please note that setting dialog option into the I<true> is not enough,
+because this method will look only for the keys defined in the C<%prompts_hash> ,  
 
 =item B<delimiter>
 
-Default delimiter is '='. Any single character from this list  = : ; + ! # ?  - *   is accepted. 
+Default delimiter is C<=>. Any single character from this list  C<= : ; + ! # ?  - *>   is accepted. 
 Please be careful with : since it could  be part of some URL for example.
 
 =item B<prompts>
 
 Hash ref with prompt text for  particular -key- ,   
-where hash should be formatted as     (   'key1' =>   ' Name of the key 1',
-					  'key2' =>   'Name of the key 2 ',
-					   'key3' =>  ' Name of the key 3 ', 
-					   'sub_xml_key1' =>  'Name of the key1   ',
-					   'sub_xml_key2' =>  ' Name of the key2 ' ,
-					 	 
-					   ) 
-It will reuse the same prompt  for the same key	
+where hash should be formatted as:
+
+     ('key1' =>   ' Name of the key 1',
+      'key2' =>   'Name of the key 2 ',
+      'key3' =>  ' Name of the key 3 ', 
+      'sub_xml_key1' =>  'Name of the key1   ',
+      'sub_xml_key2' =>  ' Name of the key2 ' ,
+      )
+
+It will reuse the same prompt  for the same key name.
 				   
 =item B<validkeys>
 
 Hash ref with  validation patterns  for  particular -key-  
-where hash should be formatted as     (    'key1' =>   '\w+',
-					   'key2' =>   '\d+',
-					   'key3' =>  '\w\w\:\w\w\:\w\w\:\w\w\:\w\w\:\w\w\', 
-					    'sub_xml_key1' =>  '\d+',
-					    'sub_xml_key2' =>  '\w+' ,
-					 	 		
-						 
-					   ) 
+where hash should be formatted as:
 
-It will reuse the same validation pattern  for the same key	
+     ( 'key1' =>   '\w+',
+       'key2' =>   '\d+',
+       'key3' =>  '\w\w\:\w\w\:\w\w\:\w\w\:\w\w\:\w\w\', 
+       'sub_xml_key1' =>  '\d+',
+       'sub_xml_key2' =>  '\w+' ,
+       
+       
+    ) 
+
+It will reuse the same validation pattern  for the same key name as well.	
 
 =back
 
@@ -231,7 +240,7 @@ use fields qw(file debug delimiter data dialog validkeys prompts);
  
 
 sub new {
-    my ( $that, $param ) = @_;
+    my ($that, $param) = @_;
     my $class = ref($that) || $that;
     my $self =  fields::new($class);
     
@@ -249,7 +258,7 @@ sub new {
     return $self;
 }
 
-=head2  setDelimiter
+=head2  setDelimiter()
 
     set delimiter from the list of supported delimiters  [\=\+\!\#\:\;\-\*] , 
 
@@ -265,9 +274,11 @@ sub setDelimiter {
     return $sep;
 }
 
-=head2  setDialog
+=head2  setDialog()
 
-    set interactive mode ( any defined value)
+    set interactive mode (any defined value)
+    accepts: single parameter - any defined
+    returns: current state
 
 =cut
 
@@ -277,14 +288,16 @@ sub setDialog {
     return $dia;
 }
 
-=head2  setFile  
+=head2  setFile()  
 
     set  config file name
-
+    accepts: single parameter - filename
+    returns: current filename
+    
 =cut
 
 sub setFile {
-    my ( $self, $file ) = @_;
+    my ($self, $file) = @_;
     unless ( $file && -e $file ) {
         croak(" File name is missing or does not exist ");
     }
@@ -292,10 +305,12 @@ sub setFile {
     return $self->{file};
 }
 
-=head2  setValidkeys 
+=head2  setValidkeys()
 
     set  vaildation patterns hash
-
+    accepts: single parameter - reference to hash with validation keys
+    returns: reference to hash with validation keys
+    
 =cut
 
 sub setValidkeys {
@@ -307,10 +322,12 @@ sub setValidkeys {
     return $self->{validkeys};
 }
 
-=head2  setPrompts  
+=head2  setPrompts()
 
     set  prompts hash
-
+    accepts: single parameter - reference to hash with prompts  
+    returns: reference to hash with  prompts 
+    
 =cut
 
 sub setPrompts {
@@ -323,12 +340,14 @@ sub setPrompts {
 
 }
 
-=head2   getNormalizedData 
+=head2   getNormalizedData()
 
   This method returns a  normalized hash ref, see explanation above.
   the complex key will be normalized
-    'key1' => { 'key2' =>   'value' }
+       'key1' => { 'key2' =>   'value' }
    will be returned as 'key1_key2' => 'value'
+   accepts; nothing
+   returns: hash ref with normalized config data
 
 =cut
 
@@ -337,15 +356,14 @@ sub getNormalizedData {
     return _normalize( $self->{data} );
 }
 
-=head2    store 
-
-
-Store into the config file,  preserve all comments from the original file
-Accepts filename as  argument
-Possible ways to call B<store()>:
+=head2  store() 
+  
+  Store into the config file,  preserve all comments from the original file
+  Accepts filename as  argument
+  Possible ways to call B<store()>:
 
   $conf->store("my.conf"); #store into the my.conf file, if -file was defined at the object creation time, then this will overwrite it
- 
+   
   $conf->store();  
 
 =cut
@@ -390,18 +408,18 @@ sub store {
     close OUTF;
 }
 
-=head2  parse 
+=head2  parse()
 
-Parse config file, return hash ref ( optional)
-Accepts filename as  argument
+   Parse config file, return hash ref ( optional)
+   Accepts filename as  argument
 
-Possible ways to call B<parse()>:
+   Possible ways to call B<parse()>:
 
- $config_hashref = $conf->parse("my.conf"); # parse  my.conf file, if -file was defined at the object creation time, then this will overwrite -file option
+  $config_hashref = $conf->parse("my.conf"); # parse  my.conf file, if -file was defined at the object creation time, then this will overwrite -file option
  
   $config_hashref = $conf->parse();  
   
-This method returns a  a hash ref.
+  This method returns a  a hash ref.
 
 =cut
 
@@ -410,7 +428,7 @@ sub parse {
     my $file_to_open = ( defined $filen && -e $filen ) ? $filen : $self->{file};
 
     open INF, "<$file_to_open"
-      or croak(" Failed to open config file: $file_to_open");
+        or croak(" Failed to open config file: $file_to_open");
     print("File $file_to_open opened for parsing ") if $self->{debug};
     my %config     = ();
     my $comment    = undef;
@@ -434,17 +452,13 @@ sub parse {
                 $xml_start = $1;
                 $xml_config .= $_;
             }
-
             # elsif  inside of XML
             elsif ($xml_start) {
                 if (m/^\<\/\s*($xml_start)\s*\>/xsm) {
                     $xml_config .= $_;
-                    my $xml_cf =
-                      XMLin( $xml_config, KeyAttr => {}, ForceArray => 1 );
+                    my $xml_cf =  XMLin( $xml_config, KeyAttr => {}, ForceArray => 1 );
                     $config{$xml_start}{value} = $self->_parseXML($xml_cf);
-                    carp " Parsed XML fragment: "
-                      . Dumper $config{$xml_start}{value}
-                      if $self->{debug};
+                    carp " Parsed XML fragment: "  . Dumper $config{$xml_start}{value}  if $self->{debug};
                     if ($comment) {
                         $config{$xml_start}{comment} = $comment;
                         $comment = '';
@@ -599,7 +613,7 @@ sub _parseXML {
 }
 
 #
-#    key normalization
+#    keys normalization
 #  'value' = > { 'key0' => ['value0'],  'key1' => { 'key12' =>   ['value12' ]}, 'key2' => { 'key22' =>   ['value22' ]}}
 #
 
@@ -676,48 +690,47 @@ sub _processKey {
 1;
 
  __END__
-  
+
+
 =head1 DEPENDENCIES
 
-   XML::Simple, Carp, Data::Dumper
+L<XML::Simple>, L<Carp>, L<Data::Dumper>
 
 
 =head1 EXAMPLES 
 
 
- For example this config file:
+For example this config file:
 
  
- # username
- USERNAME = user
- PASSWORD = pass
- #sql config
- <SQL production="1">
-    <DB_DRIVER>
-        mysql
-    </DB_DRIVER>
-     <DB_NAME>
-        database
-    </DB_NAME>
-</SQL>
+  # username
+  USERNAME = user
+  PASSWORD = pass
+  #sql config
+  <SQL production="1">
+      <DB_DRIVER>
+                mysql
+      </DB_DRIVER>
+      <DB_NAME>
+                database
+      </DB_NAME>
+  </SQL>
 
 =head1 SEE ALSO
 
-  L<Config::General>, L<XML::Simple>, L<Data::Dumper>
- 
+L<Config::General>
+
 =head1 AUTHOR
 
-  Maxim Grigoriev <maxim |AT| fnal.gov>, 2007-2008, Fermilab
+Maxim Grigoriev <maxim |AT| fnal.gov>, 2007-2008, Fermilab
 
 =head1 COPYRIGHT
 
-  Copyright(c) 2007-2008, Fermi Reasearch Alliance (FRA)   
- 
+Copyright(c) 2007-2008, Fermi Reasearch Alliance (FRA)   
+
 =head1 LICENSE
 
-  You should have received a copy of the Fermitools license
-  with this software.  If not, see L<http://fermitools.fnal.gov/about/terms.html>
+You should have received a copy of the Fermitools license 
+with this software.  If not, see L<http://fermitools.fnal.gov/about/terms.html>
 
-
- 
 =cut
