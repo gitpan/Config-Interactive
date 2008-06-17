@@ -50,9 +50,9 @@ my %CONF_KEYS = (PORT => ' enter any number  and press Enter ');
 
 # 10
   eval {  
-    $conf->store("/tmp/test.conf")   
+    $conf->store("/tmp/test_$$.conf")   
   };
-  ok( !$@  && -e "/tmp/test.conf", "Config::Interactive store file ". $@);  
+  ok( !$@  && -e "/tmp/test_$$.conf", "Config::Interactive store file ". $@);  
   $@ = undef;
   # 11
   eval {    

@@ -17,7 +17,8 @@ no_index:
 requires: 
   Data::Dumper: 0
   Test::More: 0
+  XML::Parser: 0
   XML::Simple: 0
   fields: 0
   perl: 5.6.1
-version: 0.03
+version: 0.04

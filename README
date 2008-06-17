@@ -4,7 +4,7 @@ Config::Interactive
 
 VERSION
 
- 0.03
+ 0.04
  
  
 DECRIPTION
@@ -16,8 +16,7 @@ Also, it can run interactive session with user, use predefined prompts, use vali
 and store back into the file, preserving the original order of the comments and definitions.
 Motivation behind this module was inspired by Config::General module which was missing required
 functionality ( preservation of the comments order and positioining, prompts and validation for 
-command line based UI ). Basically, this is Yet-Another-Config-Module with some subset of the
-functionality and list of features found to be useful. 
+command line based UI ). This module is extremely useful as CLI frontend to your application.
   
 
 
